@@ -76,6 +76,7 @@ router.delete('/:id', async(req: Request, res: Response, next: NextFunction) => 
         const { id } = req.params;
         const userId = req.payload!.id;
         const foundLog = await prisma.daily.findFirstOrThrow({ where: { id , AND: { userId } } });
+        await prisma.daily.delete({ where: { id } });
         res.status(HttpStatus.OK).json(foundLog);
     } catch (e) {
         next(e);
