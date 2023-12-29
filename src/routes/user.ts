@@ -48,10 +48,7 @@ router.post('/login', async(req: Request, res: Response, next: NextFunction) => 
         if ( !username || !password ) {
             throw new ApiError('Missing credentials', HttpStatus.BAD_REQUEST);
         }
-        const foundUser = await prisma.user.findFirst({ where: { username } });
-        if ( !foundUser ) {
-            throw new ApiError('Username not found', HttpStatus.BAD_REQUEST);
-        }
+        const foundUser = await prisma.user.findFirstOrThrow({ where: { username } });
         if ( !compare(password, foundUser.password) ) {
             throw new ApiError('Incorrect password', HttpStatus.BAD_REQUEST);
         }

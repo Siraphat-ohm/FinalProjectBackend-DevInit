@@ -64,14 +64,15 @@ router.put('/:id', async(req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
         const { title, description, startDate, endDate } = req.body;
-        const foundEvent = await prisma.calendarEvent.findUnique({ where: { id } });
+        const userId = req.payload!.id;
+        const foundEvent = await prisma.calendarEvent.findUniqueOrThrow({ where: { id, userId } });
         const event = await prisma.calendarEvent.update({
             where: { id },
             data: {
                 title,
                 description,
-                startDate: startDate ? new Date(startDate) : foundEvent!.startDate,
-                endDate: endDate ? new Date(endDate) : foundEvent!.endDate
+                startDate: !!startDate ? new Date(startDate) : foundEvent!.startDate,
+                endDate: !!endDate ? new Date(endDate) : foundEvent!.endDate
             }
         });
         return res.status(HttpStatus.OK).json(event);
@@ -83,11 +84,9 @@ router.put('/:id', async(req: Request, res: Response, next: NextFunction) => {
 router.delete('/:id', async(req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
-        const foundEvent = await prisma.calendarEvent.findUnique({ where: { id } });
-        if ( !foundEvent ) {
-            return res.status(HttpStatus.NOT_FOUND).json({ message: 'Event not found' });
-        }
-        const event = await prisma.calendarEvent.delete({
+        const userId =  req.payload!.id;
+        const event = await prisma.calendarEvent.findUniqueOrThrow({ where: { id, userId } });
+        await prisma.calendarEvent.delete({
             where: { id }
         });
         return res.status(HttpStatus.OK).json(event);

@@ -52,7 +52,7 @@ router.get('/:id', async(req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.payload!.id;
         const { id } = req.params;
-        const todo = await prisma.todo.findFirst({ where: { id, userId } });
+        const todo = await prisma.todo.findUniqueOrThrow({ where: { id, userId } });
         if ( !todo ) {
             return res.status(HttpStatus.NOT_FOUND).json({ message: 'Todo not found' });
         }

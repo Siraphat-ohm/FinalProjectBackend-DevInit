@@ -57,13 +57,10 @@ router.put('/:id', async(req: Request, res: Response, next: NextFunction) => {
         const { body } = req;
         const userId = req.payload!.id;
         let date;
-        const foundLog = await prisma.daily.findFirst({ where: { id, AND: { userId } } });
+        const foundLog = await prisma.daily.findFirstOrThrow({ where: { id, AND: { userId } } });
         if ( body.date ) {
             date = new Date(body.date);
         } 
-        if ( !foundLog ) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Invalid log' });
-        }
         const log = await prisma.daily.update({ where: { id }, data: {
             content: body.content,
             date: date || foundLog.date,
@@ -78,12 +75,8 @@ router.delete('/:id', async(req: Request, res: Response, next: NextFunction) => 
     try {
         const { id } = req.params;
         const userId = req.payload!.id;
-        const foundLog = await prisma.daily.findFirst({ where: { id , AND: { userId } } });
-        if ( !foundLog ) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Invalid log' });
-        }
-        const log = await prisma.daily.delete({ where: { id } });
-        res.status(HttpStatus.OK).json(log);
+        const foundLog = await prisma.daily.findFirstOrThrow({ where: { id , AND: { userId } } });
+        res.status(HttpStatus.OK).json(foundLog);
     } catch (e) {
         next(e);
     }
