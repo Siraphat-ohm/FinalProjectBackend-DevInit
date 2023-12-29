@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_DATABASE: 
+      MYSQL_USER: 
+      MYSQL_PASSWORD: 
+    ports:
+      - '${MYSQL_PORT}:3306'
+    volumes:
+      - Daily:/var/lib/mysql
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci','--default-time-zone=Asia/Bangkok']
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_PORT: ${MYSQL_PORT}
+      MYSQL_ROOT_PASSWORD: 
+    ports:
+      - '${PHPMYADMIN_PORT}:80'
+    depends_on:
+      - db
+
+volumes:
+  Daily:
