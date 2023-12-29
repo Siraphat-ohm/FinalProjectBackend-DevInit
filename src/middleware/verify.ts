@@ -14,7 +14,7 @@ const verify = async(req: Request, res: Response, next: NextFunction) => {
         req.payload = decoded;
 
         const userId = req.payload.id;
-        const user = await prisma.user.findFirst({ where: { id: userId } });
+        const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
         
         if (!user) {
             throw new ApiError("Invalid user", HttpStatus.UNAUTHORIZED);

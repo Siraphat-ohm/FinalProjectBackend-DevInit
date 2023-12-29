@@ -70,10 +70,7 @@ router.put('/:id', async(req: Request, res: Response, next: NextFunction) => {
         if ( ( status !== 'TODO' && status !== 'DOING' && status !== 'DONE' ) && !!status ) {
             return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Invalid status' });
         }
-        const todo = await prisma.todo.findFirst({ where: { id, userId } });
-        if ( !todo ) {
-            return res.status(HttpStatus.NOT_FOUND).json({ message: 'Todo not found' });
-        }
+        const todo = await prisma.todo.findUniqueOrThrow({ where: { id, userId } });
         const updatedTodo = await prisma.todo.update({ 
             where: { id }, 
             data: { 
@@ -94,12 +91,9 @@ router.delete('/:id', async(req: Request, res: Response, next: NextFunction) => 
     try {
         const userId = req.payload!.id;
         const { id } = req.params;
-        const todo = await prisma.todo.findFirst({ where: { id, userId } });
-        if ( !todo ) {
-            return res.status(HttpStatus.NOT_FOUND).json({ message: 'Todo not found' });
-        }
-        const deletedTodo = await prisma.todo.delete({ where: { id } });
-        res.status(HttpStatus.OK).json(deletedTodo);
+        const todo = await prisma.todo.findUniqueOrThrow({ where: { id, userId } });
+        await prisma.todo.delete({ where: { id } });
+        res.status(HttpStatus.OK).json(todo);
     } catch (e) {
         next(e);
     }
